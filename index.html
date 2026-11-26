@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#2a1a10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="description" content="Il gioco della Tana del Luppolo, craft beer & food in Darsena a Savona: dietro al bancone con Roberto, spilla la birra giusta per ogni cliente.">
+<meta property="og:title" content="Tana del Luppolo Game">
+<meta property="og:description" content="Dietro al bancone con Roberto, in Darsena a Savona: spilla la birra giusta per ogni cliente.">
+<title>Tana del Luppolo Game</title>
+<link rel="icon" href="icona.png">
+<link rel="apple-touch-icon" href="icona.png">
+<style>
+:root { --lavw: clamp(230px, 31vw, 340px); --legno: #2a1a10; --gesso: #f2ecdf; --arancio: #b2552c; --oro: #e1ad49; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--legno); color: var(--gesso); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+body { position: fixed; inset: 0; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+button { font: inherit; color: inherit; cursor: pointer; }
+#cv { position: fixed; left: 0; top: 0; touch-action: none; }
+
+/* ---- barra in alto ---- */
+#top { position: fixed; left: 0; top: 0; right: 0; height: 46px; display: none; align-items: center; gap: 8px; padding: 6px 8px 0;
+  padding-top: max(6px, env(safe-area-inset-top)); background: linear-gradient(rgba(25,14,8,.88), rgba(25,14,8,0)); z-index: 5; }
+.ingioco #top { display: flex; }
+.oriz #top { right: var(--lavw); }
+#top button { width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(255,255,255,.14); font-size: 17px; flex: none; }
+#hMezzo { flex: 1; min-width: 0; }
+#hNome { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: .9; }
+#hTempo { height: 7px; border-radius: 4px; background: rgba(255,255,255,.18); overflow: hidden; margin-top: 3px; }
+#hTempo i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--oro), #f6d27a); border-radius: 4px; }
+#hTempo.vite i { background: linear-gradient(90deg, #e74c3c, #ff8a7a); }
+.hv { font-weight: 800; font-size: 15px; white-space: nowrap; text-shadow: 0 1px 2px #000; }
+#hPunti::before { content: "🪙 "; }
+#hObiettivo { color: #ffd76a; letter-spacing: 1px; font-size: 14px; }
+#hCombo { color: #7dff9a; font-size: 13px; }
+
+/* ---- aiuti e avvisi ---- */
+#aiuto { position: fixed; left: 50%; top: 54px; transform: translate(-50%, -12px); width: min(92vw, 420px); background: #fff7e0; color: #3a2a1a; border-radius: 12px; padding: 10px 12px 10px 38px;
+  font-size: 14px; line-height: 1.35; box-shadow: 0 6px 20px rgba(0,0,0,.35); opacity: 0; pointer-events: none; transition: .3s; z-index: 6; }
+#aiuto span { position: absolute; left: 10px; top: 9px; font-size: 18px; }
+#aiuto.su { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.oriz #aiuto { left: calc((100vw - var(--lavw)) / 2); width: min(calc(92vw - var(--lavw)), 420px); }
+#toast { position: fixed; left: 50%; top: 104px; transform: translateX(-50%); background: rgba(25,14,8,.92); padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;
+  opacity: 0; transition: .25s; pointer-events: none; z-index: 6; max-width: 90vw; text-align: center; border: 1px solid rgba(255,255,255,.15); }
+.oriz #toast { left: calc((100vw - var(--lavw)) / 2); }
+#toast.su { opacity: 1; }
+
+/* ---- la lavagna ---- */
+#lav { position: fixed; display: none; z-index: 4; background: #1f2522; border: 6px solid #6a3c21; border-bottom: 0; font-family: "Chalkboard SE", "Comic Sans MS", "Marker Felt", cursive;
+  box-shadow: 0 -4px 14px rgba(0,0,0,.4); padding: 6px; gap: 5px; flex-direction: column; }
+.ingioco #lav { display: flex; }
+.vert #lav { left: 0; right: 0; bottom: 0; padding-bottom: max(6px, env(safe-area-inset-bottom)); border-left: 0; border-right: 0; }
+.oriz #lav { right: 0; top: 0; bottom: 0; width: var(--lavw); border-right: 0; border-top: 0; overflow-y: auto; padding-top: max(6px, env(safe-area-inset-top)); }
+.mani { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #c9c2b4; }
+.mani > span { flex: none; }
+.mani button { flex: 1; min-width: 0; height: 30px; border-radius: 15px; border: 1px dashed rgba(255,255,255,.3); background: transparent; display: flex; align-items: center; gap: 5px; padding: 0 8px; font-size: 12px; overflow: hidden; }
+.mani button.pieno { border-style: solid; background: rgba(255,255,255,.1); }
+.mani button.pieno::after { content: "✕"; margin-left: auto; opacity: .5; font-size: 10px; }
+.mani button b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+.sez { display: flex; gap: 4px; align-items: stretch; }
+.sez > span { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: #f2a65a; text-align: center; flex: none; width: 13px; }
+.griglia { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.oriz .griglia { grid-template-columns: repeat(2, 1fr); }
+.carta { position: relative; min-height: 50px; border-radius: 8px; border: 1px solid rgba(255,255,255,.16); border-left: 6px solid var(--b, #888); background: rgba(255,255,255,.05);
+  padding: 4px 4px 4px 6px; text-align: left; display: flex; flex-direction: column; justify-content: center; gap: 1px; overflow: hidden; transition: transform .08s, background .2s; }
+.carta:active { transform: scale(.95); background: rgba(255,255,255,.16); }
+.carta b { font-size: 12px; line-height: 1.1; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.carta em { font-style: normal; font-size: 14px; line-height: 1.1; white-space: nowrap; font-family: "Apple Color Emoji","Segoe UI Emoji",sans-serif; }
+.carta small { font-size: 9.5px; opacity: .65; }
+.carta.lattina, .carta.bottiglia { border-style: solid dashed solid solid; }
+.col { display: inline-block; width: 10px; height: 13px; background: var(--c); clip-path: polygon(0 0, 100% 0, 82% 100%, 18% 100%); margin-right: 3px; vertical-align: -1px; box-shadow: inset 0 3px 0 #fff8ea; }
+.fusto { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255,255,255,.12); }
+.fusto s, .prog s { display: block; height: 100%; width: 100%; background: var(--b, #7dff9a); }
+.carta.vuoto { border-left-color: #d9534f; background: rgba(217,83,79,.2); animation: lampeggia 1s infinite; }
+.carta.cibo { border-left-color: #f2a65a; }
+.carta.cibo .em { font-style: normal; font-size: 20px; position: absolute; right: 4px; top: 3px; font-family: "Apple Color Emoji","Segoe UI Emoji",sans-serif; }
+.carta.cibo b { padding-right: 22px; }
+.prog { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.12); }
+.prog s { background: #f2a65a; }
+.carta.pronto { border-left-color: #3fbf6f; background: rgba(63,191,111,.22); animation: lampeggia 1s infinite; }
+.carta.pronto .prog s { background: #3fbf6f; }
+.carta.bru { border-left-color: #555; background: rgba(0,0,0,.45); }
+.carta.finito { opacity: .45; }
+@keyframes lampeggia { 50% { box-shadow: 0 0 0 2px rgba(255,255,255,.35) inset; } }
+
+/* ---- spillatura ---- */
+#spilla { position: fixed; z-index: 7; width: 190px; padding: 10px 12px 12px; border-radius: 16px; background: rgba(25,14,8,.94); border: 2px solid var(--oro); text-align: center;
+  display: none; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+#spilla.su { display: block; }
+#spNome { font-weight: 800; font-size: 14px; color: #ffd27a; margin-bottom: 6px; }
+.vetro { position: relative; width: 74px; height: 112px; margin: 0 auto 10px; clip-path: polygon(0 0, 100% 0, 86% 100%, 14% 100%); background: rgba(220,235,240,.18); }
+#spLiv { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: #f2c43c; }
+#spSchiuma { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: #fff8ea; }
+.fascia { position: absolute; left: -4px; right: -4px; bottom: 78.6%; height: 12.6%; border-top: 2px dashed #3fbf6f; border-bottom: 2px dashed #3fbf6f; background: rgba(63,191,111,.18); }
+.vetrob { position: relative; width: 90px; margin: 0 auto; }
+.vetrob::after { content: "✓"; position: absolute; right: -8px; bottom: 82%; color: #3fbf6f; font-weight: 900; }
+#spBott { width: 100%; height: 54px; border-radius: 27px; border: 0; background: linear-gradient(#d9733f, var(--arancio)); color: #fff; font-weight: 900; font-size: 17px; letter-spacing: 1px;
+  touch-action: none; box-shadow: 0 4px 0 #6d2f14; }
+#spBott:active { transform: translateY(3px); box-shadow: 0 1px 0 #6d2f14; }
+#spilla p { margin: 6px 0 0; font-size: 11px; opacity: .7; }
+
+/* ---- schermate ---- */
+#schermo { position: fixed; inset: 0; z-index: 10; display: none; overflow-y: auto; background: rgba(20,12,8,.8); -webkit-overflow-scrolling: touch; }
+#schermo.su { display: block; }
+#schermo .box { max-width: 680px; margin: 0 auto; padding: max(18px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); }
+#schermo h2 { text-align: center; font-size: 26px; margin: 6px 0 12px; color: #ffd27a; font-family: "Arial Rounded MT Bold", system-ui, sans-serif; }
+.pulsanti { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 16px 0 8px; }
+.pulsanti.col { flex-direction: column; align-items: stretch; max-width: 320px; margin: 16px auto; }
+.pulsanti button { border: 0; border-radius: 26px; padding: 12px 18px; background: rgba(255,255,255,.14); font-weight: 700; font-size: 15px; }
+.pulsanti button em { font-style: normal; opacity: .7; font-size: 13px; margin-left: 4px; }
+.pulsanti button.grande { background: linear-gradient(#d9733f, var(--arancio)); box-shadow: 0 4px 0 #6d2f14; font-size: 18px; padding: 14px 26px; }
+.pulsanti button:disabled { opacity: .4; }
+.piede { text-align: center; font-size: 12.5px; line-height: 1.5; opacity: .9; margin-top: 14px; }
+.piede a { color: #ffd27a; font-weight: 700; text-decoration: none; display: inline-block; margin-top: 4px; padding: 6px 12px; border: 1px solid rgba(255,210,122,.5); border-radius: 16px; }
+
+/* titolo: trasparente sopra la scena */
+#schermo.titolo { background: linear-gradient(rgba(20,12,8,.55), rgba(20,12,8,0) 30%); }
+#schermo.titolo .box { min-height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+.logo { text-align: center; margin-top: 4px; line-height: .9; font-family: "Arial Rounded MT Bold", "Arial Black", system-ui, sans-serif; font-weight: 900; color: #fff;
+  text-shadow: 0 0 0 #000, 2px 2px 0 #2c2622, -2px 2px 0 #2c2622, 2px -2px 0 #2c2622, -2px -2px 0 #2c2622, 0 6px 16px rgba(0,0,0,.6); }
+.logo small { display: block; font-size: clamp(20px, 6vw, 34px); }
+.logo strong { display: block; font-size: clamp(44px, 14vw, 78px); letter-spacing: 1px; }
+.logo span { display: inline-block; margin-top: 6px; background: var(--arancio); padding: 4px 16px 6px; border-radius: 6px; font-size: clamp(18px, 5vw, 26px); letter-spacing: 6px; transform: rotate(-3deg); text-shadow: none; box-shadow: 0 4px 0 #6d2f14; }
+.motto { text-align: center; font-weight: 600; text-shadow: 0 1px 3px #000; margin-top: 10px; font-size: 15px; }
+#schermo.titolo .pulsanti { margin-top: auto; }
+
+.serate { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.serata { position: relative; text-align: left; border: 1px solid rgba(255,255,255,.15); border-radius: 12px; background: rgba(255,255,255,.07); padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.serata em { font-style: normal; font-size: 11px; opacity: .7; }
+.serata b { font-size: 16px; }
+.serata small { font-size: 12px; opacity: .75; }
+.serata.chiusa { opacity: .45; }
+.serata.infinita { grid-column: 1 / -1; background: rgba(178,85,44,.25); }
+.stelline { color: #ffd76a; font-size: 18px; letter-spacing: 2px; }
+.lucchetto, .rec { font-size: 13px; opacity: .85; }
+.prev { background: rgba(255,247,224,.12); border-left: 4px solid var(--oro); padding: 8px 10px; border-radius: 6px; font-size: 14px; }
+.istr { font-size: 14px; opacity: .9; text-align: center; }
+.fusti, .album { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.fustoc, .figu { position: relative; text-align: left; border-radius: 12px; border: 2px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); padding: 8px 8px 8px 40px; display: flex; flex-direction: column; gap: 2px; min-height: 70px; }
+.fustoc b, .figu b { font-size: 14px; }
+.fustoc em, .figu em { font-style: normal; font-size: 14px; font-family: "Apple Color Emoji","Segoe UI Emoji",sans-serif; }
+.fustoc small, .figu small { font-size: 11px; opacity: .7; line-height: 1.3; }
+.fustoc.si { border-color: #3fbf6f; background: rgba(63,191,111,.18); }
+.fustoc.si::after { content: "✓"; position: absolute; right: 8px; top: 6px; color: #3fbf6f; font-weight: 900; font-size: 18px; }
+.bic { position: absolute; left: 10px; top: 12px; width: 22px; height: 34px; background: var(--b, #555); clip-path: polygon(0 0, 100% 0, 84% 100%, 16% 100%); box-shadow: inset 0 6px 0 #fff8ea; }
+.figu p { margin: 2px 0; font-size: 13px; }
+.figu.chiusa { opacity: .45; }
+.figu.chiusa .bic { background: #555; box-shadow: none; }
+.leggenda { font-size: 12px; text-align: center; opacity: .8; margin-top: 12px; line-height: 1.6; }
+.crediti { text-align: center; font-size: 13px; margin-top: 14px; line-height: 1.5; opacity: .9; }
+.crediti small { opacity: .7; }
+.grandi-stelle { text-align: center; font-size: 48px; color: rgba(255,255,255,.2); letter-spacing: 6px; }
+.grandi-stelle .on { color: #ffd76a; text-shadow: 0 0 16px rgba(255,215,106,.6); }
+.punti { text-align: center; font-size: 40px; font-weight: 900; }
+.punti small { font-size: 16px; opacity: .7; }
+.punti em { display: block; font-size: 15px; color: #7dff9a; font-style: normal; }
+.rob { text-align: center; font-size: 15px; }
+.stat { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 13px; }
+.stat span { background: rgba(255,255,255,.07); border-radius: 8px; padding: 6px 8px; display: flex; justify-content: space-between; }
+.top, .nuovi { text-align: center; font-size: 14px; }
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+
+<div id="top">
+  <button id="bPausa" title="Pausa">⏸</button>
+  <div id="hMezzo"><div id="hNome"></div><div id="hTempo"><i></i></div></div>
+  <span class="hv" id="hObiettivo"></span>
+  <span class="hv" id="hCombo"></span>
+  <span class="hv" id="hPunti">0</span>
+  <span class="hv" id="hStelle"></span>
+  <button id="bNotte" title="Giorno / notte">🌙</button>
+</div>
+<div id="aiuto"></div>
+<div id="toast"></div>
+
+<div id="lav">
+  <div class="mani"><span>In mano:</span><button id="m0"></button><button id="m1"></button></div>
+  <div class="sez" id="sSpina"><span>Spina</span><div class="griglia" id="gSpina"></div></div>
+  <div class="sez" id="sFrigo"><span>Frigo</span><div class="griglia" id="gFrigo"></div></div>
+  <div class="sez" id="sCucina"><span>Cucina</span><div class="griglia" id="gCucina"></div></div>
+</div>
+
+<div id="spilla">
+  <div id="spNome"></div>
+  <div class="vetrob"><div class="vetro"><div id="spLiv"></div><div id="spSchiuma"></div><div class="fascia"></div></div></div>
+  <button id="spBott">TIENI PREMUTO</button>
+  <p>Lascia quando la schiuma è nella fascia verde</p>
+</div>
+
+<div id="schermo"></div>
+
+<script src="disegno.js"></script>
+<script src="dati.js"></script>
+<script src="gioco.js"></script>
+</body>
+</html>
